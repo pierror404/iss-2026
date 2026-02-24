@@ -17,10 +17,10 @@ public class MainConwayLifeJava  {
 	
  	
     public static void main(String[] args) {
-    System.out.println("MainConway | STARTS " );  
-    MainConwayLifeJava app = new MainConwayLifeJava();
-    app.configureTheSystemWitMockOutdev();
-    System.out.println("MainConway | ENDS " );  
+    		System.out.println("MainConway | STARTS " );  
+    		MainConwayLifeJava app = new MainConwayLifeJava();
+    		app.configureTheSystemWitMockOutdev();
+    		System.out.println("MainConway | ENDS " );  
     }
 
 }
