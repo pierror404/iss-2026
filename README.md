@@ -5,7 +5,9 @@
  <!-- comment: [ancora personalizzata] -->
 
  <h2 id="ParteA">Parte A: Dai programmi ai Sistemi a Microservizi</h2>
-
+ 
+ ### Documentazione HTML: [Pages](https://pierror404.github.io/iss-2026/)
+ 
  ### Sistema ConwayLife in locale
  [Riferimento: conway26Java Dai requisiti al deployment](https://anatali.github.io/issLab2026/Project%20conway26Java.html#conway26java-dai-requisiti-al-deployment)
  * [ConwayLife Sprint1](ConwayLife/Sprint1/conway26Java): impostazione di un primo prototipo
@@ -17,6 +19,7 @@
  ### Sistema ConwayLife con pagine HTML
  * [ConwayLife Sprint3(ConwayLife/Sprint3/conway26Java)]: evoluzione del sistema in locale
    usando una pagina HTML come dispositivo di I/O. <i>Distribuzione</i>: Docker yaml.
+
 
 
 
