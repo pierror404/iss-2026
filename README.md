@@ -1,7 +1,7 @@
 ﻿# issLab2026
  Laboratorio di **Ingegneria dei Sistemi Software** a.a. 2025/2026 di Pevere Pierluca 0001242015
 
- [Testo di riferimento:](https://anatali.github.io/issLab2026/_static/docs/Protobook.pdf)
+ [Testo di riferimento](https://anatali.github.io/issLab2026/_static/docs/Protobook.pdf)
  <!-- comment: [ancora personalizzata] -->
 
  <h2 id="ParteA">Parte A: Dai programmi ai Sistemi a Microservizi</h2>
@@ -17,5 +17,6 @@
  ### Sistema ConwayLife con pagine HTML
  * [ConwayLife Sprint3(ConwayLife/Sprint3/conway26Java)]: evoluzione del sistema in locale
    usando una pagina HTML come dispositivo di I/O. <i>Distribuzione</i>: Docker yaml.
+
 
 
