@@ -4,13 +4,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import main.java.conway.domain.IGrid;
 import main.java.conway.domain.Grid;
 
 public class GridTest {
 	private static final int nRows=5;
 	private static final int nCols=5;
 	
-private Grid grid;
+private IGrid grid;
 
 	@Before
 	public void setup() {
@@ -43,14 +44,20 @@ private Grid grid;
 		assertTrue( grid.toString().startsWith(". . . . ."));
 	}
 	@Test
-	public void testPrintGrid() {
-		System.out.println("testPrintGrid ---------------------" );
+	public void testReset() {
+		System.out.println("testReset ---------------------");
+		IGrid temp = new Grid(nRows, nCols);
 		grid.setCellValue(0,0,true);
-		grid.setCellValue(0,1,true);
-		grid.setCellValue(0,2,true);
-		grid.setCellValue(0,3,true);
-		grid.setCellValue(0,4,true);
-		//grid.printGrid();
+		assertTrue(grid.getCellValue(0, 0));
+		grid.reset();
+		boolean uguali = true;
+		for(int i = 0; i < nRows; i++) {
+			for(int j = 0; j < nCols; j++) {
+				if(grid.getCellValue(i, j) != temp.getCellValue(i, j))
+					uguali = false;
+			}
+		}
+		assertTrue(uguali);
 	}
 
 }

@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import main.java.conway.domain.Grid;
+import main.java.conway.domain.IGrid;
 import main.java.conway.domain.Life;
 import main.java.conway.domain.LifeInterface;
 import static org.junit.Assert.assertTrue;
@@ -73,7 +73,7 @@ private LifeInterface lifeModel;
 	
 		lifeModel.setCell(2,2,true);
 	
-		lifeModel.resetGrids();
+		lifeModel.resetGrid();
 	
 	    assertFalse(lifeModel.isAlive(2,2));
 	}
@@ -81,7 +81,7 @@ private LifeInterface lifeModel;
 	@Test
 	public void testGetGrid() {
 	
-	    Grid grid = lifeModel.getGrid();
+	    IGrid grid = lifeModel.getGrid();
 	
 	    assertNotNull(grid);
 	}

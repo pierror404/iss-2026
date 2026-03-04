@@ -6,8 +6,8 @@ public class Life implements LifeInterface{
     private final int cols;
     
     // Due matrici distinte
-    private Grid gridA;
-    private Grid gridB;
+    private IGrid gridA;
+    private IGrid gridB;
         
    public static LifeInterface CreateLife(int nr, int nc) {
 	   return new Life(nr,nc);   
@@ -71,7 +71,7 @@ public class Life implements LifeInterface{
     
     protected void swapGrids() {
         // Scambiamo i riferimenti: ciò che era 'next' diventa 'current'
-        Grid temp  = gridA;
+        IGrid temp  = gridA;
         gridA      = gridB;
         gridB      = temp;
         //Non abbiamo creato nuovi oggetti, abbiamo solo spostato i puntatori
@@ -125,7 +125,7 @@ public class Life implements LifeInterface{
     @Override
     public ICell getCell(int r, int c) { return gridA.getCell(r,c); }
     @Override
-    public void resetGrids() { 
+    public void resetGrid() { 
         gridA.reset();  
         gridB.reset();  
     }
@@ -134,7 +134,7 @@ public class Life implements LifeInterface{
     @Override
     public void setCell(int r, int c, boolean state) { gridA.setCellValue(r,c,state); } 
     @Override
-    public Grid getGrid() { return gridA; }
+    public IGrid getGrid() { return gridA; }
 
 	@Override
 	public boolean isAlive(int row, int col) {

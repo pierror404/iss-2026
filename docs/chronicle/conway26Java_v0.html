@@ -45,18 +45,231 @@ R2  L’utente umano deve poter:
 
 <h2>Requirement analysis</h2>
 <pre>
-    - Il sistema deve avere una griglia
-    - Il sistema deve avere delle celle
-    - La griglia è composta di celle
-    - Le celle hanno lo stato viva o morta
-    - Il sistema ha una classe che gestisce l'evoluzione del gioco secondo le regole
+- Cosa intende il committente per <b>Cella</b>?
+	Dopo aver parlato col committente formalizzo il seguente modello:
+	<code>
+		public interface ICell {
+			/* Una cella ha la capacità di impostare il proprio stato interno a seconda di un valore booleano */
+			  void setStatus(boolean v);
+
+			/* Una cella, come entità, ha la capacità di rispondere alla "query" isAlive rispondendo con il valore dello stato */
+			  boolean isAlive();
+			
+			/* Una cella ha la capacità di cambiare il proprio stato da viva a morta e da morta a viva */
+			  void switchCellState(); 
+		}
+	</code>
+- Cosa intende il committente per <b>Griglia</b>?
+	Dopo aver parlato col committente formalizzo il seguente modello:
+	<code>
+		public interface IGrid {
+			/* Una griglia ha la capacità di comunicare, rispondendo alla "query" getRowsNum, il numero delle righe che la compongono */
+			  public int getRowsNum(); 
+			  
+			/* Una griglia ha la capacità di comunicare, rispondendo alla "query" getColsNum, il numero delle colonne che la compongono */  
+			  public int getColsNum();
+			
+			/* Una griglia ha la capacità di impostare lo stato di una sua cella a seconda dell'indice di riga e colonna della cella e di un valore booleano */
+			  public void setCellValue(int x, int y, boolean state);
+			  
+			/* Una griglia ha la capacità di rispondere alla "query" getCell rispondendo con la cella in corrispondenza degli indici di riga e colonna passati come parametri */  
+			  public ICell getCell(int x, int y);
+			  
+			/* Una griglia ha la capacità di rispondere alla "query" getCellValue rispondendo con il valore della cella in corrispondenza degli indici di riga e colonna passati come parametri */
+			  public boolean getCellValue(int x, int y);
+			  
+			/* Una griglia ha la capacità di resettarsi, quindi riportarsi allo stato iniziale */
+			  public void reset();
+		}
+	</code>
+- Cosa intende il committente per <b>Life</b>?
+	Dopo aver parlato col committente formalizzo il seguente modello:
+	<code>
+		public interface LifeInterface {
+			/* Life, come entità, ha la capacità di calcolare il valore del suo stato alla generazione successiva */
+		      void nextGeneration();
+
+		    /* Life ha la capacità di restituire il valore di una cella a seconda degli indici di riga e colonna (della cella) passati come parametri */
+		      boolean isAlive(int row, int col);
+
+		    /* Life ha la capacità di impostare lo stato di una cella i cui indici di riga e colonna sono passati come parametri a seconda del valore di un booleano */
+		      void setCell(int row, int col, boolean alive);
+		    
+		    /* Life ha la capacità di restituire una cella i cui indici di riga e colonna sono passati come parametri */
+		      ICell getCell(int x, int y);
+		    
+		    /* Life ha la capacità di restituire la griglia */
+		      IGrid getGrid();
+		    
+		    /* Life ha la capacità di resettare la griglia */
+		      void resetGrid();
+		}
+	</code>
 </pre>
 <h2>Problem analysis</h2>
 <img src="./img/UML.jpg" alt="UML">
 
 <h2>Test plans</h2> 
+<pre>
+<details>
+<summary>Piano di test per <b>Cella</b>:</summary>
+<code>
+	public class CellTest {
+	private ICell c;
 
+		@Before
+		public void setup() {
+			System.out.println("ConwayLifeTest | setup");	
+		    c = new Cell();
+		}
+		@After
+		public void down() {
+			System.out.println("ConwayLifeTest | down");
+		}
+		
+		@Test
+		public void testCellAlive() {
+			System.out.println("ConwayLifeTest | doing alive");
+			c.setStatus(true);
+			boolean r = c.isAlive();
+			assertTrue(r);
+			
+		}
+		
+		@Test
+		public void testCellDead() {
+			System.out.println("ConwayLifeTest | doing dead");
+			c.setStatus(false);
+			boolean r = c.isAlive();
+			assertTrue( !r);
+		}	
+	}
+</code>
+</details>
+<details>
+<summary>Piano di test per <b>Griglia</b>:</summary>
+<code>
+	public class GridTest {
+		private static final int nRows=5;
+		private static final int nCols=5;
+		
+	private IGrid grid;
 
+		@Before
+		public void setup() {
+			System.out.println("GridTest | setup");	
+			grid= new Grid(nRows,nCols);
+		}
+		@After
+		public void down() {
+			System.out.println("GridTest | down");
+		}
+		
+		@Test
+		public void testDims() {
+			System.out.println("testDims ---------------------" );
+			int nr = grid.getRowsNum();
+			int nc = grid.getColsNum();
+			assertTrue( nr==nRows && nc==nCols );
+		}
+		@Test
+		public void testCGridCellValue() {
+			System.out.println("testCGridCellValue ---------------------" );
+			grid.setCellValue(0,0,true);
+			assertTrue(   grid.getCellValue(0,0) );
+			assertFalse(  grid.getCellValue(0,1) );
+		}
+		@Test
+		public void testGridRep() {
+			System.out.println("testGridRep ---------------------" );
+	 		System.out.println(""+grid);
+			assertTrue( grid.toString().startsWith(". . . . ."));
+		}
+		@Test
+		public void testReset() {
+			System.out.println("testReset ---------------------");
+			IGrid temp = new Grid(nRows, nCols);
+			grid.setCellValue(0,0,true);
+			assertTrue(grid.getCellValue(0, 0));
+			grid.reset();
+			boolean uguali = true;
+			for(int i = 0; i &lt nRows; i++) {
+				for(int j = 0; j &lt nCols; j++) {
+					if(grid.getCellValue(i, j) != temp.getCellValue(i, j))
+						uguali = false;
+				}
+			}
+			assertTrue(uguali);
+		}
+
+	}
+</code>
+</details>
+<details>
+<summary>Piano di test per <b>Life</b>:</summary>
+<code>
+	public class LifeTest {
+	private LifeInterface lifeModel;
+
+		@Before
+		public void setup() {
+			System.out.println("GridTest | setup");	
+			lifeModel = new Life(5, 5);  // se puoi usare il costruttore
+		}
+	
+		@After
+		public void down() {
+			System.out.println("GridTest | down");
+		}
+		
+		@Test
+		public void testSetCellAlive() {
+		    lifeModel.setCell(2, 3, true);
+		    assertTrue(lifeModel.isAlive(2, 3));
+		}
+		
+		@Test
+		public void testSetCellDead() {
+		    lifeModel.setCell(1, 1, false);
+		    assertFalse(lifeModel.isAlive(1, 1));
+		}
+		
+		@Test
+		public void testLonelyCellDies() {
+		    lifeModel.setCell(1, 1, true);
+		    lifeModel.nextGeneration();
+		    assertFalse(lifeModel.isAlive(1, 1));
+		}
+		
+		@Test
+		public void testBlockStillLife() {
+			lifeModel.setCell(1,1,true);
+			lifeModel.setCell(1,2,true);
+			lifeModel.setCell(2,1,true);
+			lifeModel.setCell(2,2,true);
+			lifeModel.nextGeneration();
+		    assertTrue(lifeModel.isAlive(1,1));
+		    assertTrue(lifeModel.isAlive(1,2));
+		    assertTrue(lifeModel.isAlive(2,1));
+		    assertTrue(lifeModel.isAlive(2,2));
+		}
+		
+		@Test
+		public void testReset() {
+			lifeModel.setCell(2,2,true);
+			lifeModel.resetGrid();
+		    assertFalse(lifeModel.isAlive(2,2));
+		}
+		
+		@Test
+		public void testGetGrid() {
+		    IGrid grid = lifeModel.getGrid();
+		    assertNotNull(grid);
+		}
+	}
+</code>
+</details>
+</pre>
 <h2>Project</h2> 
  
  
