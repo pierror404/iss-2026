@@ -1,0 +1,95 @@
+System sistemaqak 
+/*
+ * sistemas: un servizio che valuta il valore di una funzione
+ */
+
+Dispatch eval : arg(V)
+Request  evalR: argr(V)
+Reply evalRreply: value(V) for evalR
+
+Context ctxsistemas ip [host="localhost" port=8010]
+QActor sistemas context ctxsistemas {
+	
+	/*
+ 	 * Versione sistemaS come programma
+ 	 */
+	[# 
+		fun eval(x: Double): String {
+			val R = 3 * x;	
+			return ""+R
+		}
+	#]
+	
+	State s0 initial {
+		println("")
+		println("===VERSIONE PROGRAMMA===") color cyan
+		println("Hello World") color cyan
+		[# val V = eval(2.0) #]
+		println("Result=$V") color cyan
+		println("========================") color cyan
+		println("")
+		println("Now I'm waiting for the dispatch or a request") color yellow
+	}
+
+	/*
+	 * Versione sistemaS come servizio
+	 */
+	Transition t0
+		whenMsg eval -> handleEval
+		whenRequest evalR -> handleRequest
+	 
+	 State handleEval {
+	 	printCurrentMessage color green
+	 	println("$name | msg=$currentMsg") color green
+	 	onMsg(eval : arg(X)) {
+	 		[# 
+	 			val VasString = payloadArg(0)
+	 			val V		  = VasString.toDouble()
+	 		 #]
+	 		 println("$name | evaluate $V") color green
+	 		 [# val R = eval(V) #]
+	 		 println("$name | result = $R") color green
+	 	}
+	 	
+	 }
+	 
+	 Transition t1
+		whenMsg eval -> handleEval
+		whenRequest evalR -> handleRequest
+	 
+	 State handleRequest {
+	 	println("$name | msg=$currentMsg") color magenta
+	 	[# var R = "" #]
+	 	onMsg(evalR : argr(X)) {
+	 		[# 
+	 			val VasString = payloadArg(0)
+	 			val V		  = VasString.toDouble()
+	 		 #]
+	 		 [# R = eval(V) #]
+	 	}
+	 	replyTo evalR with evalRreply : value($R)
+	 }
+	 Transition t2
+		whenMsg eval -> handleEval
+		whenRequest evalR -> handleRequest
+}
+
+QActor callermock context ctxsistemas {
+	State s0 initial {
+		[# val V = 2.0 #]
+		forward sistemas -m eval : arg($V)
+		request sistemas -m evalR : argr($V)
+	}
+	Transition t0
+		whenReply evalRreply -> handleReply
+	State handleReply {
+		printCurrentMessage color magenta
+		onMsg(evalRreply : value(X)){
+			[# 
+	 			val VasString = payloadArg(0)
+	 			val V		  = VasString.toDouble()
+	 		 #]
+	 		 println("$name | result = $V") color magenta
+		}
+	}
+}
