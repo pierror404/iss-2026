@@ -43,7 +43,7 @@ class Firefly ( name: String, scope: CoroutineScope, isconfined: Boolean=false, 
 				state("s0") { //this:State
 					action { //it:State
 						 setCellCoords( )  
-						 Timer = java.util.Random().nextLong(1000L, 2000L )  
+						 Timer = java.util.Random().nextLong(500L, 2000L)  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
@@ -59,10 +59,11 @@ class Firefly ( name: String, scope: CoroutineScope, isconfined: Boolean=false, 
 					//After Lenzi Aug2002
 					sysaction { //it:State
 				 	 		stateTimer = TimerActor("timer_turnOn", 
-				 	 					  scope, context!!, "local_tout_"+name+"_turnOn", 500.toLong() )  //OCT2023
+				 	 					  scope, context!!, "local_tout_"+name+"_turnOn", Timer )  //OCT2023
 					}	 	 
-					 transition(edgeName="t10",targetState="turnOff",cond=whenTimeout("local_tout_"+name+"_turnOn"))   
-					transition(edgeName="t11",targetState="handlesync",cond=whenEvent("switch_state"))
+					 transition(edgeName="t11",targetState="turnOff",cond=whenTimeout("local_tout_"+name+"_turnOn"))   
+					transition(edgeName="t12",targetState="handlesync",cond=whenEvent("sync"))
+					transition(edgeName="t13",targetState="handleunsync",cond=whenEvent("unsync"))
 				}	 
 				state("turnOff") { //this:State
 					action { //it:State
@@ -74,24 +75,30 @@ class Firefly ( name: String, scope: CoroutineScope, isconfined: Boolean=false, 
 				 	 		stateTimer = TimerActor("timer_turnOff", 
 				 	 					  scope, context!!, "local_tout_"+name+"_turnOff", Timer )  //OCT2023
 					}	 	 
-					 transition(edgeName="t22",targetState="turnOn",cond=whenTimeout("local_tout_"+name+"_turnOff"))   
-					transition(edgeName="t23",targetState="handlesync",cond=whenEvent("switch_state"))
+					 transition(edgeName="t24",targetState="turnOn",cond=whenTimeout("local_tout_"+name+"_turnOff"))   
+					transition(edgeName="t25",targetState="handlesync",cond=whenEvent("sync"))
+					transition(edgeName="t26",targetState="handleunsync",cond=whenEvent("unsync"))
 				}	 
 				state("handlesync") { //this:State
 					action { //it:State
-						if( checkMsgContent( Term.createTerm("switch_state(TIMER)"), Term.createTerm("switch_state(A)"), 
+						if( checkMsgContent( Term.createTerm("sync(TIMER)"), Term.createTerm("sync(A)"), 
 						                        currentMsg.msgContent()) ) { //set msgArgList
 								 
-											   state = !state
-											   if(state){
-											   	val t = payloadArg(0) 
-											   	val T = t.toLong() 
-											   	Timer = T 
-											   } else {
-											   	Timer = java.util.Random().nextLong(1000L, 2000L )
-											   }
-								CommUtils.outgreen("$name | Ricevuta frequenza $T")
+											   val T = payloadArg(0).toLong() 
+											   Timer = T 
+								CommUtils.outgreen("$name | Ricevuta frequenza fissa $T")
 						}
+						//genTimer( actor, state )
+					}
+					//After Lenzi Aug2002
+					sysaction { //it:State
+					}	 	 
+					 transition( edgeName="goto",targetState="turnOn", cond=doswitch() )
+				}	 
+				state("handleunsync") { //this:State
+					action { //it:State
+						CommUtils.outyellow("$name | Sincronizzazione annullata")
+						 Timer = java.util.Random().nextLong(500L, 2000L)  
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

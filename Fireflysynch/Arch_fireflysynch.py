@@ -26,11 +26,16 @@ with Diagram('fireflysynchArch', show=False, outformat='png', graph_attr=graphat
      sys = Custom('','./qakicons/system.png')
 ### see https://renenyffenegger.ch/notes/tools/Graphviz/attributes/label/HTML-like/index
      with Cluster('ctxfireflysynch', graph_attr=nodeattr):
+          sonarmock=Custom('sonarmock','./qakicons/symActorWithobjSmall.png')
           orchestrator=Custom('orchestrator','./qakicons/symActorWithobjSmall.png')
           firefly=Custom('firefly','./qakicons/symActorDynamicWithobj.png')
      with Cluster('ctxgrid', graph_attr=nodeattr):
           griddisplay=Custom('griddisplay(ext)','./qakicons/externalQActor.png')
-     orchestrator >> Edge( label='switch_state', **eventedgeattr, decorate='true', fontcolor='red') >> sys
-     sys >> Edge( label='switch_state', **evattr, decorate='true', fontcolor='darkgreen') >> firefly
+     sonarmock >> Edge( label='sonardata', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     sys >> Edge( label='sonardata', **evattr, decorate='true', fontcolor='darkgreen') >> orchestrator
+     orchestrator >> Edge( label='sync', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     orchestrator >> Edge( label='unsync', **eventedgeattr, decorate='true', fontcolor='red') >> sys
+     sys >> Edge( label='sync', **evattr, decorate='true', fontcolor='darkgreen') >> firefly
+     sys >> Edge( label='unsync', **evattr, decorate='true', fontcolor='darkgreen') >> firefly
      firefly >> Edge(color='blue', style='solid',  decorate='true', label='<cellstate &nbsp; >',  fontcolor='blue') >> griddisplay
 diag
