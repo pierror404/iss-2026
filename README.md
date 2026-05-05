@@ -22,6 +22,9 @@
  * [ConwayLife Sprint3(ConwayLife/Sprint3/conway26Java)]: evoluzione del sistema in locale
    usando una pagina HTML come dispositivo di I/O. <i>Distribuzione</i>: Docker yaml.
 
+ ### Sistema Fireflysynch
+ * [Fireflysynch](https://github.com/pierror404/iss-2026/blob/main/Fireflysynch/src/Fireflysynch.qak) lampeggio sincronizzato a seconda di una distanza rilevata da un sonar.
+ 	* Documentazione: [userdocs](https://pierror404.github.io/iss-2026/PeverePierluca_fireflysynch.html)
 
 
 
