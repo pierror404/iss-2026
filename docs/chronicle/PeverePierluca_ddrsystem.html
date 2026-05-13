@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="css/mystyle.css">
+<!--
+    <script type="text/javascript" src="../css/issStyle.js"></script>
+-->
+    
+</head>
+   
+<title>PeverePierluca_ddrsystem</title></head>
+    
+
+<body>
+<div id="top">
+<h1>DDR system</h1>
+</div>  
+
+<div class="body">  
+
+<h2>Introduction</h2>
+<b>Goal</b>: Costruire un sistema software che comanda un Differential Drive Robot (DDR) in modo che, partendo dalla posizione iniziale HOME, il robot si sposti lungo il perimetro di una stanza rettangolare vuota, tornando alla posizione HOME. 
+ 
+<h2>Requirements</h2>
+
+Costruire un sistema software che comanda un Differential Drive Robot (DDR) in modo che, partendo dalla posizione iniziale HOME, il robot si sposti lungo il perimetro di una stanza rettangolare vuota.<br>
+Il DDR si deve fermare quando tornato in HOME.<br>
+<br>
+Il DDR è anche sensibile ai dati rilevati da un Radar. Quando il Radar rileva un 'intruso' a una distanza minore di una distanza prefissata ``DMIN``:
+<ul>
+    <li>se il DDR si sta muovendo , il DDR si ferma fino a che il Radar non rileva più un 'intruso' così vicino</li>
+    <li>se il DDR è fermo in HOME, il DDR ruota su sè stesso fino a che un 'intruso' così vicino scompare</li>
+</ul>
+
+  
+
+<h2>Requirement analysis</h2>
+Il sistema software preso in esame è composto dalle seguenti entità:
+<ul>
+	<li>
+		<b>HOME</b>: Nei requisiti il termine HOME identifica sia la posizione iniziale del DDR all’interno della stanza sia la posizione finale del percorso lungo il perimetro della stanza. Per formalizzare tale concetto è necessario introdurre i seguenti concetti:
+		<ul>
+			<li><b>stanza</b>: viene modellata come un rettangolo appartenente a un piano euclideo bidimensionale, caratterizzato da una larghezza W e da un’altezza H, entrambe espresse in metri.</li>
+			<li><b>posizione</b>: ogni posizione all’interno della stanza può essere identificata mediante una coppia di coordinate (x,y).</li>
+		</ul>
+		Tuttavia, il robot non può essere considerato un punto materiale, poiché occupa una porzione di spazio. Si assume pertanto che il DDR abbia un ingombro quadrato di lato R. Di conseguenza, la stanza può essere discretizzata in unità robotiche di dimensione RxR, ottenendo una rappresentazione a griglia.<br>
+		In tale modello, ogni cella della griglia rappresenta una posizione valida per il robot. La posizione HOME viene quindi definita come una cella predefinita della griglia, sufficientemente ampia da contenere interamente il DDR, che rappresenta sia il punto iniziale sia il punto finale del percorso operativo.<br>
+		Quanto detto è formalizzabile con il seguente codice Kotlin (classi <a href="https://github.com/pierror404/iss-2026/blob/main/ddr/src/Posizione.kt">Posizione</a> e <a href="https://github.com/pierror404/iss-2026/blob/main/ddr/src/Stanza.kt">Stanza</a>):
+		<pre>
+	data class Stanza(val W: Double, val H: Double, val R: Double) { // H e W sono in unità robotiche
+		val larghezzaMetri: Double get() = W * R
+	    	val altezzaMetri: Double get() = H * R
+	    	val home: Posizione = Posizione(0, 0)
+	}
+		</pre>
+		<pre>
+	data class Posizione(val x: Int, val y: Int)
+		</pre>
+	</li>
+	<li>
+		<b>Radar</b>: è un’entità proattiva incaricata di monitorare periodicamente l’area circostante il DDR, rilevando l’eventuale presenza di ostacoli o “intrusi” posti a una distanza inferiore a una soglia minima DMIN.<br>
+			La proprietà fondamentale del Radar consiste nel fornire al sistema informazioni relative alla distanza rilevata D, espressa in metri. Poiché il sistema viene sviluppato utilizzando il linguaggio QAK, il <a href="https://github.com/pierror404/iss-2026/blob/main/ddr/src/ddr.qak">Radar</a> viene formalizzato come un attore.<br>
+			È inoltre necessario definire il meccanismo attraverso cui tali informazioni vengono rese disponibili agli altri componenti del sistema, così da consentire al DDR di modificare il proprio comportamento in funzione dei dati acquisiti. A tal proposito si considerano due possibili approcci:
+			<ol>
+				<li>
+					il Radar comunica autonomamente la distanza rilevata tramite un evento, senza conoscere preventivamente il destinatario dell’informazione. In questo caso il Radar viene formalizzato come il seguente attore:	
+<pre>
+System ddrsystem
+Event radar : distance(D)
+Context ctxddrsys	ip [ host="localhost" 	port=8010 ]
+QActor radar_event context ctxddrsys {
+	[# 
+		var D = 0
+		var Timer = 1000L
+	 #]
+	State s0 initial {
+		println("$name | starting") color green
+	}
+	Goto rileva_distanza
+	
+	State rileva_distanza{
+		
+		emit radar : distance(D)
+	}
+	Transition t0 
+		whenTimeVar Timer -> rileva_distanza
+}
+</pre>
+				</li>
+				<li>
+					in alternativa, il Radar fornisce la distanza rilevata soltanto in risposta a una richiesta esplicita proveniente dal sistema. In questo caso il Radar viene formalizzato come il seguente attore:
+<pre>
+System ddrsystem
+Request getDistance : getDistance(D) "richiesta del sistema"
+Reply   radar_repl : distance(D) for getDistance
+Context ctxddrsys	ip [ host="localhost" 	port=8010 ]
+QActor radar_req_rep context ctxddrsys {
+	[# 
+		var D = 0
+		var Timer = 1000L
+	 #]
+	State s0 initial {
+		println("$name | starting") color green
+	}
+	Goto rileva_distanza
+	
+	State rileva_distanza{
+		
+	}
+	Transition t0 
+		whenTimeVar Timer -> rileva_distanza
+		whenRequest getDistance -> handleRequest
+   
+	State handleRequest{
+ 		onMsg( getDistance : getDistance(D) ){
+ 			replyTo getDistance with radar_repl : distance( $D )  
+ 		} 
+	}  
+	Transition t0 
+		whenTimeVar Timer -> rileva_distanza
+}
+</pre>
+				</li>
+			</ol>
+			<li>
+				<b>DDR</b>: è un’entità reattiva, priva di capacità decisionali autonome: il suo compito consiste esclusivamente nell’eseguire i comandi ricevuti, comportandosi quindi come un semplice attuatore.
+				Questa modellazione deriva direttamente dai requisiti del committente, il quale richiede la realizzazione di un sistema di controllo del robot e dispone già dell’implementazione del <a href="https://github.com/anatali/issLab2026/tree/main/it.unibo.virtualRobot2026">DDR</a>, fornendone il relativo codice sorgente.
+			</li>
+			<li>
+				<b>Controller</b>: rappresenta il componente responsabile della logica di controllo del sistema e coordina il comportamento del DDR secondo le specifiche fornite dal committente.<br>
+				In condizioni normali, il controller guida il DDR lungo il perimetro della stanza, con partenza e arrivo nella posizione HOME.<br>
+				Il controller gestisce inoltre l’interazione con il Radar, sia ricevendo eventi sia richiedendo esplicitamente la distanza rilevata, a seconda del modello adottato. Quando il Radar rileva una distanza D inferiore alla soglia DMIN, il sistema entra in stato di allarme:
+				<ul>
+					<li>
+						se il DDR è in movimento, viene arrestato;
+					</li>
+					<li>
+						se il DDR è fermo in HOME, viene attivata una rotazione sul posto.
+					</li>
+				</ul>
+				Il comportamento di allarme continua finché l’intruso rimane nella zona critica. Una volta ristabilite condizioni sicure, il controller riprende il comportamento precedentemente interrotto.<br>
+				Per formalizzare tale comportamento viene definito il seguente <a href="https://github.com/pierror404/iss-2026/blob/main/ddr/src/ddr.qak">attore</a>:
+<pre>
+System ddrsystem
+Context ctxddrsys	ip [ host="localhost" 	port=8010 ]
+QActor controller context ctxddrsys withobj ddr using "Method"{
+	[# var DMIN = 0.5 // in metri #]
+	 State s0 initial {
+	 	println("$name | starting") color cyan
+	 }
+	 Transition t0
+	 	whenEvent radar -> handleRadar
+	 	
+	 State handleRadar{
+	 	onMsg(radar : distance(D) ){
+	 		[# 
+				val D_string = payloadArg(0)
+				var D = D_string.toLong()
+			#]
+	 	}
+	 }
+	 Goto s0
+	 
+}
+</pre>
+				</li>
+			</ol>
+	</li>
+</ul>
+<h2>Problem analysis</h2>
+<pre>
+	
+</pre>
+<h2>Test plans</h2> 
+
+
+<h2>Project</h2> 
+ 
+ 
+
+<h2>Testing</h2> 
+ 
+
+<h2>Deployment</h2> 
+
+ 
+<h2>Maintenance</h2> 
+ 
+<!-- USEFUL
+<table style="width:100%" border="1">
+<tr>
+<td style="width:50%">
+</td>
+<td></td>
+</tr>
+</table>
+-->
+	      	
+<br/><br/> 	
+</div>  
+
+<div style="background-color:rgba(86, 56, 253, 0.9); width:60%;text-align:left;color:white">
+By Pierluca Pevere email: pierluca.pevere@studio.unibo.it, 
+<!-- <img src="./img/mbot-S.jpg" alt="mbot" width="15%" height="15%"> -->
+<img src="./img/me.jpeg" alt="Pierluca Pevere" width="20%" height="20%">
+GIT repo: https://github.com/pierror404/iss-2026.git
+</div> 
+</body>
+</html>
