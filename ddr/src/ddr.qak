@@ -54,7 +54,7 @@ QActor radar_req_rep context ctxddrsys {
 		whenTimeVar Timer -> rileva_distanza
 }
 
-QActor mind context ctxddrsys withobj ddr using "Method"{
+QActor controller context ctxddrsys withobj ddr using "Method"{
 	[# var DMIN = 0.5 // in metri #]
 	 State s0 initial {
 	 	println("$name | starting") color cyan

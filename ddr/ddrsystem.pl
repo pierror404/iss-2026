@@ -10,5 +10,5 @@ context(ctxddrsys, "localhost",  "TCP", "8010").
  static(radar_event).
   qactor( radar_req_rep, ctxddrsys, "it.unibo.radar_req_rep.Radar_req_rep").
  static(radar_req_rep).
-  qactor( mind, ctxddrsys, "it.unibo.mind.Mind").
- static(mind).
+  qactor( controller, ctxddrsys, "it.unibo.controller.Controller").
+ static(controller).
