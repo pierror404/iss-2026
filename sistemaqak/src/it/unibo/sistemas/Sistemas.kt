@@ -29,71 +29,15 @@ class Sistemas ( name: String, scope: CoroutineScope, isconfined: Boolean=false,
 	override fun getBody() : (ActorBasicFsm.() -> Unit){
 		//val interruptedStateTransitions = mutableListOf<Transition>()
 		//IF actor.withobj !== null val actor.withobj.name� = actor.withobj.method�ENDIF
-		 
-				fun eval(x: Double): String {
-					val R = 3 * x;	
-					return ""+R
-				}
 		return { //this:ActionBasciFsm
 				state("s0") { //this:State
 					action { //it:State
-						CommUtils.outblack("")
-						CommUtils.outcyan("===VERSIONE PROGRAMMA===")
-						CommUtils.outcyan("Hello World")
-						 val V = eval(2.0)  
-						CommUtils.outcyan("Result=$V")
-						CommUtils.outcyan("========================")
-						CommUtils.outblack("")
-						CommUtils.outyellow("Now I'm waiting for the dispatch or a request")
+						CommUtils.outblack("Hello World")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002
 					sysaction { //it:State
 					}	 	 
-					 transition(edgeName="t00",targetState="handleEval",cond=whenDispatch("eval"))
-					transition(edgeName="t01",targetState="handleRequest",cond=whenRequest("evalR"))
-				}	 
-				state("handleEval") { //this:State
-					action { //it:State
-						CommUtils.outgreen("$name in ${currentState.stateName} | $currentMsg | ${Thread.currentThread().getName()} n=${Thread.activeCount()}")
-						 	   
-						CommUtils.outgreen("$name | msg=$currentMsg")
-						if( checkMsgContent( Term.createTerm("arg(V)"), Term.createTerm("arg(X)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								 
-									 			val VasString = payloadArg(0)
-									 			val V		  = VasString.toDouble()
-								CommUtils.outgreen("$name | evaluate $V")
-								 val R = eval(V)  
-								CommUtils.outgreen("$name | result = $R")
-						}
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t12",targetState="handleEval",cond=whenDispatch("eval"))
-					transition(edgeName="t13",targetState="handleRequest",cond=whenRequest("evalR"))
-				}	 
-				state("handleRequest") { //this:State
-					action { //it:State
-						CommUtils.outmagenta("$name | msg=$currentMsg")
-						 var R = ""  
-						if( checkMsgContent( Term.createTerm("argr(V)"), Term.createTerm("argr(X)"), 
-						                        currentMsg.msgContent()) ) { //set msgArgList
-								 
-									 			val VasString = payloadArg(0)
-									 			val V		  = VasString.toDouble()
-								 R = eval(V)  
-						}
-						answer("evalR", "evalRreply", "value($R)"   )  
-						//genTimer( actor, state )
-					}
-					//After Lenzi Aug2002
-					sysaction { //it:State
-					}	 	 
-					 transition(edgeName="t24",targetState="handleEval",cond=whenDispatch("eval"))
-					transition(edgeName="t25",targetState="handleRequest",cond=whenRequest("evalR"))
 				}	 
 			}
 		}

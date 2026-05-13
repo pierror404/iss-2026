@@ -116,6 +116,8 @@ public class BoundaryWalkNaiveUsingWs26 implements IObserver{
 	          String sonarName = (String) jsonObj.get("sonarName") ;
 	          String distance  = jsonObj.get("distance").toString();
 	          CommUtils.outgreen("onMessage | JUST to show: sonarName=" + sonarName + " distance=" + distance);
+	          halt();
+	          callWS(forwardlongcmd);
 	      }*/
 	  } catch (Exception e) {
 	  	CommUtils.outred("onMessage " + message + " ERROR:" +e.getMessage());

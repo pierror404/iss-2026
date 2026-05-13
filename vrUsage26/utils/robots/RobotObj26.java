@@ -1,6 +1,7 @@
 package robots;
 import java.util.Observable;
 import org.json.simple.JSONObject;
+
 import unibo.basicomm23.interfaces.IApplMessage;
 import unibo.basicomm23.interfaces.IObserver;
 import unibo.basicomm23.interfaces.IObserverMsg;
@@ -110,6 +111,8 @@ public class RobotObj26  implements IRobotBasicMoves {
    
     protected void handleSonar(JSONObject jsonObj) {
         if (jsonObj.get("sonarName") != null) { //defensive
+        
+        	
          	if( tracing ) 
          		CommUtils.outred("robotObj26 | handleSonar " + jsonObj);
              long d = (long) jsonObj.get("distance") ;
