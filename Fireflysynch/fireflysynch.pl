@@ -6,8 +6,8 @@ event( sync, sync(TIMER) ).
 event( sonardata, distance(D) ).
 event( unsync, unsync(CMD) ).
 %====================================================================================
-context(ctxfireflysynch, "localhost",  "TCP", "8040").
 context(ctxgrid, "127.0.0.1",  "TCP", "8050").
+context(ctxfireflysynch, "127.0.0.1",  "TCP", "8040").
  qactor( griddisplay, ctxgrid, "external").
   qactor( sonarmock, ctxfireflysynch, "it.unibo.sonarmock.Sonarmock").
  static(sonarmock).

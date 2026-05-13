@@ -48,6 +48,7 @@ class Orchestrator ( name: String, scope: CoroutineScope, isconfined: Boolean=fa
 				}	 
 				state("wait") { //this:State
 					action { //it:State
+						CommUtils.outyellow("$name | in attesa di dati dal sonar...")
 						//genTimer( actor, state )
 					}
 					//After Lenzi Aug2002

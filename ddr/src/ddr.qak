@@ -1,0 +1,75 @@
+System ddrsystem
+
+/*
+ * MODELLO DELL'ANALISTA
+ */
+
+Event radar : distance(D)
+Request getDistance : getDistance(D) "richiesta del sistema"
+Reply   radar_repl : distance(D) for getDistance
+
+Context ctxddrsys	ip [ host="localhost" 	port=8010 ]
+
+QActor radar_event context ctxddrsys {
+	[# 
+		var D = 0
+		var Timer = 1000L
+	 #]
+	State s0 initial {
+		println("$name | starting") color green
+	}
+	Goto rileva_distanza
+	
+	State rileva_distanza{
+		
+		emit radar : distance(D)
+	}
+	Transition t0 
+		whenTimeVar Timer -> rileva_distanza
+}
+
+QActor radar_req_rep context ctxddrsys {
+	[# 
+		var D = 0
+		var Timer = 1000L
+	 #]
+	State s0 initial {
+		println("$name | starting") color green
+	}
+	Goto rileva_distanza
+	
+	State rileva_distanza{
+		
+	}
+	Transition t0 
+		whenTimeVar Timer -> rileva_distanza
+		whenRequest getDistance -> handleRequest
+   
+	State handleRequest{
+ 		onMsg( getDistance : getDistance(D) ){
+ 			replyTo getDistance with radar_repl : distance( $D )  
+ 		} 
+	}  
+	Transition t0 
+		whenTimeVar Timer -> rileva_distanza
+}
+
+QActor mind context ctxddrsys withobj ddr using "Method"{
+	[# var DMIN = 0.5 // in metri #]
+	 State s0 initial {
+	 	println("$name | starting") color cyan
+	 }
+	 Transition t0
+	 	whenEvent radar -> handleRadar
+	 	
+	 State handleRadar{
+	 	onMsg(radar : distance(D) ){
+	 		[# 
+				val D_string = payloadArg(0)
+				var D = D_string.toLong()
+			#]
+	 	}
+	 }
+	 Goto s0
+	 
+}

@@ -5,8 +5,8 @@ Event sync         : sync(TIMER)
 Event sonardata    : distance(D) 
 Event unsync       : unsync(CMD)
 
-Context ctxfireflysynch ip [ host= "localhost" port=8040 ]
 Context ctxgrid         ip [ host= "127.0.0.1" port=8050 ]
+Context ctxfireflysynch ip [ host= "127.0.0.1" port=8040 ]
 
 ExternalQActor griddisplay context ctxgrid
 
@@ -48,6 +48,7 @@ QActor orchestrator context ctxfireflysynch {
 	Goto wait
 	
 	State wait {
+		println("$name | in attesa di dati dal sonar...") color yellow
 	}
 	Transition t0
 		whenEvent sonardata -> handleSonar
@@ -77,7 +78,6 @@ QActor firefly context ctxfireflysynch dynamicOnly {
 	   var X = 0 
 	   var Y = 0 
 	   var Timer = 500L
-	   var state = false
 	   
 	   fun setCellCoords( ) { 
 	   	   val coordY = name.replace("firefly_","") 

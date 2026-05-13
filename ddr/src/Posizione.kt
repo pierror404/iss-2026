@@ -1,0 +1,1 @@
+data class Posizione(val x: Int, val y: Int)

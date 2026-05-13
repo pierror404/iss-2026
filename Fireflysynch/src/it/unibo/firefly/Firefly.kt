@@ -33,7 +33,6 @@ class Firefly ( name: String, scope: CoroutineScope, isconfined: Boolean=false, 
 			   var X = 0 
 			   var Y = 0 
 			   var Timer = 500L
-			   var state = false
 			   
 			   fun setCellCoords( ) { 
 			   	   val coordY = name.replace("firefly_","") 

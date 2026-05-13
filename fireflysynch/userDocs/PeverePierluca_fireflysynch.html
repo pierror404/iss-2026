@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="css/mystyle.css">
+<!--
+    <script type="text/javascript" src="../css/issStyle.js"></script>
+-->
+    
+</head>
+   
+<title>PeverePierluca_fireflysynch</title></head>
+    
+
+<body>
+<div id="top">
+<h1>Firefly synch sonar</h1>
+</div>  
+
+<div class="body">  
+
+<h2>Introduction</h2>
+<b>Goal</b>: avere un sistema che a seconda della distanza rilevata da un sonar faccia lampeggiare 3 lucciole in modo sincronizzato o non sincronizzato
+ 
+<h2>Requirements</h2>
+
+ 
+<!-- <div class="remark"> -->
+<pre>
+Il sistema deve soddisfare i seguenti requisiti:<br>
+<ul>
+    <li>R1: Ii sistema deve essere composto da 3 lucciole.</li>
+    <li>R2: ogni lucciola lampeggia inizialmente con una frequenza propria costante.</li>
+    <li>R3: il sistema è dotato di un sonar che misura la distanza di un ostacolo.</li>
+    <li>R4: quando la distanza rilevata è minore di una soglia DMIN, le lucciole devono
+        lampeggiare in modo sincronizzato.</li>
+    <li>R5: quando la distanza torna maggiore o uguale a DMIN, le lucciole devono
+        tornare a lampeggiare in modo non sincronizzato.</li>
+    <li>R6: il lampeggio delle lucciole deve essere visibile tramite una griglia.</li>
+</ul>
+
+</pre>
+  
+
+<h2>Requirement analysis</h2>
+<pre>
+Il sistema è composto dai seguenti componenti:<br>
+<ul>
+    <li>3 QActor lucciola, che gestiscono il lampeggio
+        ON/OFF ed inviano il proprio stato ad una griglia.</li>
+    <li>Un QActor orchestratore, che riceve i dati dal sonar e decide quando attivare
+        o disattivare la sincronizzazione.</li>
+    <li>Un QActor sonar (sonarmock), che simula la rilevazione della distanza
+        di un ostacolo.</li>
+    <li>Un QActor (esterno) griddisplay per la visualizzazione della griglia.</li>
+</ul>
+Gli eventi presenti nel sistema devono essere 3:<ul>
+<li>Uno inviato dal sonar all'orchestratore che comunica la distanza</li>
+<li>Uno, inviato se la distanza rilevata è minore di DMIN e quindi le lucciole si devono sincronizzare</lI>
+<li>Uno da inviare per far tornare a lampeggiare le lucciole a frequenze indipendenti</li>
+</ul>
+<details>
+<summary>Gli eventi (per il codice completo fare riferimento <a href="https://github.com/pierror404/iss-2026/blob/main/fireflysynch/src/fireflysynch.qak">qui</a>: </summary>
+<code>
+Event sync         : sync(TIMER) 
+Event sonardata    : distance(D) 
+Event unsync       : unsync(CMD)
+</code>
+</details>
+</pre>
+<h2>Problem analysis</h2>
+ Il comportamento delle lucciole rimane modellato come una macchina a stati a due stati (oltre a quelli per gestire gli eventi):
+<ul>
+    <li>turnOn</li>
+    <li>turnOff</li>
+</ul>
+
+Ogni lucciola utilizza un timer locale per alternare lo stato ON/OFF.
+La durata del timer può essere modificata dinamicamente per ottenere
+la sincronizzazione.
+
+Il sonar emette periodicamente un evento <i>sonardata : distance(D)</i>.
+L’orchestratore, alla ricezione di tale evento, confronta la distanza con una
+soglia DMIN:
+<ul>
+    <li>se la distanza è minore di DMIN e il sistema non è sincronizzato,
+        l’orchestratore invia un evento sync a tutte le lucciole;</li>
+    <li>se la distanza è maggiore o uguale a DMIN e il sistema risulta sincronizzato,
+        l’orchestratore invia un evento unsync per ripristinare il comportamento
+        casuale.</li>
+</ul>
+Il codice completo si trova <a href="https://github.com/pierror404/iss-2026/blob/main/fireflysynch/src/fireflysynch.qak">a questo link</a>
+<h2>Test plans</h2> 
+
+
+<h2>Project</h2> 
+ 
+ 
+
+<h2>Testing</h2> 
+ 
+
+<h2>Deployment</h2> 
+
+ 
+<h2>Maintenance</h2> 
+ 
+<!-- USEFUL
+<table style="width:100%" border="1">
+<tr>
+<td style="width:50%">
+</td>
+<td></td>
+</tr>
+</table>
+-->
+	      	
+<br/><br/> 	
+</div>  
+
+<div style="background-color:rgba(86, 56, 253, 0.9); width:60%;text-align:left;color:white">
+By Pierluca Pevere email: pierluca.pevere@studio.unibo.it, 
+<!-- <img src="./img/mbot-S.jpg" alt="mbot" width="15%" height="15%"> -->
+<img src="./img/me.jpeg" alt="Pierluca Pevere" width="20%" height="20%">
+GIT repo: https://github.com/pierror404/iss-2026.git
+</div> 
+</body>
+</html>
